@@ -1,0 +1,12 @@
+quad=int(input("Enter the quadrant number (1-4)"))
+dirty=[1,1,1,1]
+next=quad-1;
+while(quad!=next):
+    if(dirty[quad]==1):
+        print("Cleaning Quadrant ".format(quad))
+        dirty[quad]=0
+    else:
+        print(quad)
+        print(" Quadrant is clean")
+        quad=(quad+1)%4
+         
