@@ -1,0 +1,81 @@
+import random
+
+# Heuristic: number of pairs of queens attacking each other
+def calculate_cost(state):
+    cost = 0
+    n = len(state)
+    for i in range(n):
+        for j in range(i + 1, n):
+            if state[i] == state[j] or abs(state[i] - state[j]) == abs(i - j):
+                cost += 1
+    return cost
+
+
+# Generate all neighbors of the current state
+def get_neighbors(state):
+    neighbors = []
+    n = len(state)
+    for col in range(n):
+        for row in range(n):
+            if state[col] != row:  # move queen in col to new row
+                neighbor = state.copy()
+                neighbor[col] = row
+                neighbors.append(neighbor)
+    return neighbors
+
+
+# Hill climbing algorithm with full trace
+def hill_climb(initial_state):
+    current = initial_state
+    current_cost = calculate_cost(current)
+
+    print("\n--- HILL CLIMBING FOR N-QUEENS ---")
+    print(f"Initial state: {current}, H = {current_cost}\n")
+
+    step = 0
+    while True:
+        print(f"Step {step}: Current state = {current}, H = {current_cost}")
+        neighbors = get_neighbors(current)
+
+        # Calculate cost for all neighbors
+        neighbor_costs = [(n, calculate_cost(n)) for n in neighbors]
+
+        # Sort by heuristic (lower is better)
+        neighbor_costs.sort(key=lambda x: x[1])
+
+        print("  All neighbors and their H values:")
+        for i, (n, c) in enumerate(neighbor_costs[:min(10, len(neighbor_costs))], start=1):
+            print(f"    {i}. {n} → H = {c}")
+        if len(neighbor_costs) > 10:
+            print("    ... (remaining neighbors omitted)")
+
+        # Pick the best neighbor
+        best_neighbor, best_cost = neighbor_costs[0]
+
+        if best_cost < current_cost:
+            print(f"  → Better neighbor found: {best_neighbor} with H = {best_cost}\n")
+            current, current_cost = best_neighbor, best_cost
+        else:
+            print("\nNo better neighbor found — stopping.")
+            print(f"Final state: {current}, H = {current_cost}")
+            if current_cost == 0:
+                print("✅ Goal state reached! Solution found.\n")
+            else:
+                print("⚠️ Stuck in local minimum.\n")
+            return current, current_cost
+
+        step += 1
+
+
+# Example usage
+if __name__ == "__main__":
+    n = int(input("Enter number of queens (N): "))
+    print("Enter initial state as space-separated row positions for each column.")
+    print("Example for N=4: '1 3 0 2' means queen at (0,1), (1,3), (2,0), (3,2).")
+
+    initial_state = list(map(int, input("Initial state: ").split()))
+
+    if len(initial_state) != n:
+        print("Invalid input: Length of initial state must be N.")
+    else:
+        solution, cost = hill_climb(initial_state)
