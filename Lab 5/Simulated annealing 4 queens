@@ -1,0 +1,85 @@
+import random
+import math
+
+# Number of queens
+N = 4
+
+def cost(state):
+    """Compute number of attacking queen pairs."""
+    conflicts = 0
+    for i in range(N):
+        for j in range(i + 1, N):
+            if state[i] == state[j] or abs(state[i] - state[j]) == abs(i - j):
+                conflicts += 1
+    return conflicts
+
+def random_neighbor(state):
+    """Generate a neighbor by moving one queen to another row."""
+    neighbor = state.copy()
+    col = random.randrange(N)
+    new_row = random.randrange(N - 1)
+    if new_row >= neighbor[col]:
+        new_row += 1
+    neighbor[col] = new_row
+    return neighbor
+
+def simulated_annealing(T0=5.0, alpha=0.99, Tmin=1e-6, max_iters=1000):
+    print("\n--- SIMULATED ANNEALING FOR 4-QUEENS ---")
+
+    # Take initial state input
+    print("Enter initial state (4 integers from 0–3, space-separated):")
+    state = list(map(int, input().split()))
+    if len(state) != N:
+        print("Invalid input. Expected 4 integers.")
+        return
+
+    current_cost = cost(state)
+    T = T0
+    it = 0
+
+    print("\nInitial State:", state)
+    print("Initial Cost (H):", current_cost)
+    print(f"{'Iter':<6}{'Temp':<10}{'Current H':<12}{'ΔE':<10}{'Decision':<15}{'New State'}")
+
+    while T > Tmin and it < max_iters and current_cost != 0:
+        neighbor = random_neighbor(state)
+        neighbor_cost = cost(neighbor)
+        delta = neighbor_cost - current_cost
+        accepted = False
+
+        if delta <= 0:
+            accepted = True
+        else:
+            p = math.exp(-delta / T)
+            if random.random() < p:
+                accepted = True
+
+        decision = "Accepted" if accepted else "Rejected"
+
+        if accepted:
+            state = neighbor
+            current_cost = neighbor_cost
+
+        print(f"{it:<6}{T:<10.4f}{current_cost:<12}{delta:<10}{decision:<15}{state}")
+
+        T *= alpha
+        it += 1
+
+    print("\n--- FINAL RESULT ---")
+    print("Final State:", state)
+    print("Final Cost (H):", current_cost)
+    print("Iterations:", it)
+    print("\nBoard:")
+    print_board(state)
+
+def print_board(state):
+    """Pretty-print the board."""
+    for r in range(N):
+        row = ""
+        for c in range(N):
+            row += "Q " if state[c] == r else ". "
+        print(row)
+    print()
+
+# Run the algorithm
+simulated_annealing()
