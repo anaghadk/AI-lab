@@ -1,36 +1,35 @@
 import random
 import math
 
-# Number of queens
-N = 4
-
 def cost(state):
     """Compute number of attacking queen pairs."""
     conflicts = 0
-    for i in range(N):
-        for j in range(i + 1, N):
+    n = len(state)
+    for i in range(n):
+        for j in range(i + 1, n):
             if state[i] == state[j] or abs(state[i] - state[j]) == abs(i - j):
                 conflicts += 1
     return conflicts
 
 def random_neighbor(state):
     """Generate a neighbor by moving one queen to another row."""
+    n = len(state)
     neighbor = state.copy()
-    col = random.randrange(N)
-    new_row = random.randrange(N - 1)
+    col = random.randrange(n)
+    new_row = random.randrange(n - 1)
     if new_row >= neighbor[col]:
         new_row += 1
     neighbor[col] = new_row
     return neighbor
 
 def simulated_annealing(T0=5.0, alpha=0.99, Tmin=1e-6, max_iters=1000):
-    print("\n--- SIMULATED ANNEALING FOR 4-QUEENS ---")
+    print("\n--- SIMULATED ANNEALING FOR N-QUEENS ---")
+    n = int(input("Enter number of queens (N): "))
 
-    # Take initial state input
-    print("Enter initial state (4 integers from 0–3, space-separated):")
+    print(f"Enter initial state ({n} integers from 0–{n-1}, space-separated):")
     state = list(map(int, input().split()))
-    if len(state) != N:
-        print("Invalid input. Expected 4 integers.")
+    if len(state) != n:
+        print(f"Invalid input. Expected {n} integers.")
         return
 
     current_cost = cost(state)
@@ -74,9 +73,10 @@ def simulated_annealing(T0=5.0, alpha=0.99, Tmin=1e-6, max_iters=1000):
 
 def print_board(state):
     """Pretty-print the board."""
-    for r in range(N):
+    n = len(state)
+    for r in range(n):
         row = ""
-        for c in range(N):
+        for c in range(n):
             row += "Q " if state[c] == r else ". "
         print(row)
     print()
